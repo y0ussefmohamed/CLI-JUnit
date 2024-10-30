@@ -1,8 +1,11 @@
 package org.example;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Scanner;
+
+
 
 public class Main {
     // System.getProperty
@@ -15,79 +18,94 @@ public class Main {
         System.out.println();
         System.out.println("Command Line Interpreter is now working: ");
         while(true) {
-            CommandLineInterpreter CLI = new CommandLineInterpreter();
+            System.out.print(currentDirectory + " :-$ "); String commandLine = inp.nextLine();
+            String[] pipedCommands = commandLine.split("\\|");
+            String output = "";
 
-            CLI.pwd(); System.out.print(":-$ "); String command = inp.nextLine();
+            for (int i = 0; i < pipedCommands.length; i++) {
+                CommandLineInterpreter CLI = new CommandLineInterpreter();
+                CLI.pwd();
+                String command = pipedCommands[i].trim();
+                String[] splittedCommand = command.split("\\s+");
+                Parser parser = new Parser(splittedCommand);
+                String cmd = parser.getCmd();
 
-            Parser parser = new Parser(command.split("\\s+"));
-            String cmd = parser.getCmd();
+                switch (cmd.toLowerCase()) {
+                    case "pwd":
+                        output = CLI.pwd();
+                        break;
+                   /* case "ls":
+                        output = CLI.ls();
+                        break;
+                    case "ls -a":
+                        output = CLI.lsAll();
+                        break;
+                    case "ls -r":
+                        output = CLI.lsReverse();
+                        break;*/
+                    case "mkdir":
+                        CLI.mkdir(parser.getFirstArgument());
+                        output = "";
+                        break;
+                    case "cd": {
+                        if(Objects.equals(parser.getFirstArgument(), ""))
+                            CLI.cd("", 1);
+                        else if(Objects.equals(parser.getFirstArgument(), ".."))
+                            CLI.cd("", 2);
+                        else
+                            CLI.cd(parser.getFirstArgument(), 3);
 
-            // Explain :
-            // mkdir joe     .....
-            // cmd   arg[1]  arg[2]
-
-            if(cmd.equalsIgnoreCase("pwd"))
-            {
-                if(Objects.equals(parser.getFirstArgument(), ""))  {
-                    CLI.pwd();
-                    System.out.println();
+                        output = "";
+                        break;
+                    }
+                    case "rmdir": {
+                        if(Objects.equals(parser.getSecondArgument(), ""))
+                            if(Objects.equals(parser.getFirstArgument(), "*"))
+                                CLI.rmdir(homeDirectory, 1);
+                            else
+                                CLI.rmdir(parser.getFirstArgument(), 2);
+                        else
+                            System.out.println("mkdir doesn't take a second argument !");
+                        break;
+                    }
+                    case "mv": {
+                        CLI.mv(parser.getFirstArgument(), parser.getSecondArgument());
+                        break;
+                    }
+                    case "rm": {
+                        if (Objects.equals(parser.getSecondArgument(), ""))
+                            CLI.rm(parser.getFirstArgument());
+                        else
+                            System.out.println("cd doesn't take a second argument !");
+                        break;
+                    }
+                   /* case "cat":
+                        output = CLI.cat(parser.getFirstArgument());
+                        break;
+                    case "touch":
+                        CLI.touch(parser.getFirstArgument());
+                        output = "";
+                        break;*/
+                    case ">":
+                        CLI.redirectOutput(output, parser.getFirstArgument(), false);
+                        output = "";
+                        break;
+                    default:
+                        System.out.println("Unknown command: " + cmd);
                 }
-                else
-                    System.out.println("pwd doesn't take any arguments !");
-            }
-            else  if(cmd.equalsIgnoreCase("mkdir"))
-            {
-                if(Objects.equals(parser.getSecondArgument(), ""))
-                    CLI.mkdir(parser.getFirstArgument());
-                else
-                    System.out.println("mkdir doesn't take a second argument !");
-            }
-            else if(cmd.equalsIgnoreCase("rmdir"))
-            {
-                if(Objects.equals(parser.getSecondArgument(), ""))
-                    if(Objects.equals(parser.getFirstArgument(), "*"))
-                        CLI.rmdir(homeDirectory, 1);
-                    else
-                        CLI.rmdir(parser.getFirstArgument(), 2);
-                else
-                    System.out.println("mkdir doesn't take a second argument !");
-            }
-            else  if(cmd.equalsIgnoreCase("cd"))
-            {
-                if(Objects.equals(parser.getSecondArgument(), "")) {
-                    if(Objects.equals(parser.getFirstArgument(), ""))
-                        CLI.cd("", 1);
-                    else if(Objects.equals(parser.getFirstArgument(), ".."))
-                        CLI.cd("", 2);
-                    else
-                        CLI.cd(parser.getFirstArgument(), 3);
+
+                // If this is not the last command, pass output to the next command in the pipe
+                if (i < pipedCommands.length - 1) {
+                    output = CLI.executePipe(output, pipedCommands[i + 1].trim());
+                } else if (!output.isEmpty()) {
+                    System.out.println(output);
                 }
-                else
-                    System.out.println("cd doesn't take a second argument !");
-            }
-            else  if(cmd.equalsIgnoreCase("rm"))
-            {
-                if(Objects.equals(parser.getSecondArgument(), ""))
-                   CLI.rm(parser.getFirstArgument());
-                else
-                    System.out.println("cd doesn't take a second argument !");
-            }
-            else  if(cmd.equalsIgnoreCase("mv")) {
-                CLI.mv(parser.getFirstArgument(), parser.getSecondArgument());
-            }
 
 
-            if(parser.getFirstArgument().equalsIgnoreCase(">"))
-                CLI.redirectOutput(currentDirectory, parser.getSecondArgument(), false);
-            else if(parser.getFirstArgument().equalsIgnoreCase(">>")) {
-                // TODO();
-            }
-            else if(parser.getFirstArgument().equalsIgnoreCase("|")) {
-                // TODO();
-            }
 
-            if(Objects.equals(command, "exit"))
-                break;
+                if(Objects.equals(command, "exit"))
+                    break;
+            }
         }
     }
 }

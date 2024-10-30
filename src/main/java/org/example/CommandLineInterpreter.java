@@ -1,15 +1,15 @@
 package org.example;
 
+import org.example.Parser;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Objects;
-
 
 public class CommandLineInterpreter {
     // pwd
-    public void pwd() {
-        System.out.print(Main.currentDirectory);
+    public String pwd() {
+        return Main.currentDirectory;
     }
 
     // cd
@@ -58,9 +58,9 @@ public class CommandLineInterpreter {
             }
         }
     }
-
     // rmdir
     public void rmdir(String directoryNameToRemove, int type) {
+
         if (directoryNameToRemove.isEmpty()) {
             System.out.println("rmdir must be called with a directory name!");
         } else {
@@ -69,21 +69,20 @@ public class CommandLineInterpreter {
             if (directoryToRemove.exists()) {
                 if (type == 1) {
                     removeEmptyDirectories(directoryToRemove);
-                } else if (type == 2) {
-                    if (directoryToRemove.isDirectory() && Objects.requireNonNull(directoryToRemove.list()).length > 0) {
-                        System.out.println("This directory is not empty!");
-                    } else if (directoryToRemove.delete()) {
-                        System.out.println(directoryNameToRemove + " has been removed √");
-                    } else {
-                        System.out.println("Failed to delete the directory.");
-                    }
                 }
-            } else {
-                System.out.println("Directory does not exist!");
+                else if(type == 2)
+                {
+                    if (directoryToRemove.delete()) // deletion occurs and returns true
+                        System.out.println(directoryNameToRemove + " has been removed √");
+                    else
+                        System.out.println("This directory is not empty!");
+                }
             }
+            else
+                System.out.println("Directory does not exist!");
+
         }
     }
-
 
     private void removeEmptyDirectories(File directory) {
         File[] subFiles = directory.listFiles();
@@ -176,9 +175,28 @@ public class CommandLineInterpreter {
         }
     }
 
-
     // >>
 
 
     // | (pipe)
+    public String executePipe(String command1Output, String command2) {
+        String[] splitCommand = command2.split("\\s+");
+        Parser parser = new Parser(splitCommand);
+        String cmd = parser.getCmd();
+
+        // Process command2 using command1's output as input if needed
+        switch (cmd.toLowerCase()) {
+          /*  case "cat":
+                return cat(parser.getFirstArgument());
+            case "ls":
+                return ls();
+            case "ls -a":
+                return lsAll();
+            case "ls -r":
+                return lsReverse();
+            // Add other command cases here as needed*/
+            default:
+                return "Unknown command for pipe: " + cmd;
+        }
+    }
 }

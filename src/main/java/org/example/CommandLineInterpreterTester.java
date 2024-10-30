@@ -34,8 +34,7 @@ public class CommandLineInterpreterTester {
     // pwd
     @Test
     public void testPwd() {
-        cli.pwd();
-        assertEquals(Main.currentDirectory, outContent.toString().trim());
+        assertEquals(Main.currentDirectory, cli.pwd());
     }
 
     // cd
