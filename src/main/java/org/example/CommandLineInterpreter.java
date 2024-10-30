@@ -7,6 +7,34 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class CommandLineInterpreter {
+
+    public void help() {
+        System.out.println("Available Commands:");
+        System.out.println("pwd          - Prints the current directory.");
+        System.out.println("cd           - Changes the current directory:");
+        System.out.println("               cd (type 1) - Change to home directory.");
+        System.out.println("               cd .. (type 2) - Go to previous directory.");
+        System.out.println("               cd <path> (type 3) - Change to a specific path.");
+        System.out.println();
+        System.out.println("ls           - Lists directory contents.");
+        System.out.println("ls -a        - Lists all files including hidden files.");
+        System.out.println("ls -r        - Lists files in reverse order (to be implemented).");
+        System.out.println("mkdir <dir>  - Creates a new directory with the specified name.");
+        System.out.println("rmdir <dir>  - Removes an empty directory or verifies if non-empty:");
+        System.out.println("               rmdir <dir> (type 1) - Removes all empty subdirectories.");
+        System.out.println("               rmdir <dir> (type 2) - Deletes directory if empty.");
+        System.out.println();
+        System.out.println("touch <file> - Creates a new, empty file with the specified name.");
+        System.out.println("mv <src> <dst> - Moves a file or directory to a new location.");
+        System.out.println("rm <file/dir> - Removes a file or an entire directory and its contents.");
+        System.out.println("cat <file>   - Displays the content of a file.");
+        System.out.println("> <file>     - Redirects output to overwrite a file.");
+        System.out.println(">> <file>    - Redirects output to append to a file.");
+        System.out.println("| <cmd>      - Pipes the output of one command as input to another command.");
+        System.out.println("help         - Displays this help message.");
+        System.out.println("exit         - Exits the terminal.");
+    }
+
     // pwd
     public String pwd() {
         return Main.currentDirectory;
@@ -32,7 +60,6 @@ public class CommandLineInterpreter {
             }
             else
                 System.out.println("Invalid path: " + path + " Directory does not exist!");
-
         } else
             System.out.println("Invalid cd command usage!");
 
@@ -83,7 +110,6 @@ public class CommandLineInterpreter {
 
         }
     }
-
     private void removeEmptyDirectories(File directory) {
         File[] subFiles = directory.listFiles();
         if (subFiles != null) {

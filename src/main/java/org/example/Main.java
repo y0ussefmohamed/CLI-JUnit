@@ -8,12 +8,12 @@ import java.util.Scanner;
 
 
 public class Main {
-    // System.getProperty
     public static String currentDirectory = ("/Users/youssefmo/Downloads/CLI-JUnit");
     public static String homeDirectory = ("/Users/youssefmo/Downloads/CLI-JUnit");
     public static String previousDirectory = homeDirectory;
+
     public static void main(String[] args) throws IOException {
-        Scanner inp = new Scanner(System.in); // To take fast input
+        Scanner inp = new Scanner(System.in);
 
         System.out.println();
         System.out.println("Command Line Interpreter is now working: ");
@@ -90,6 +90,13 @@ public class Main {
                         CLI.redirectOutput(output, parser.getFirstArgument(), false);
                         output = "";
                         break;
+                    case "help": {
+                        CLI.help();
+                        break;
+                    }
+                    case "exit": {
+                        return;
+                    }
                     default:
                         System.out.println("Unknown command: " + cmd);
                 }
