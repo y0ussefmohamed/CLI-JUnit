@@ -32,12 +32,10 @@ public class Main {
                 if (cmd.equalsIgnoreCase("pwd")) {
                     output = CLI.pwd();
                 }
-
                 else if (cmd.equalsIgnoreCase("cat")){
                     CLI.Cat(parser.getFirstArgument(), parser.getSecondArgument());
                     output = "";
                 }
-
                 else if(parser.getFirstArgument().equalsIgnoreCase(">") || parser.getSecondArgument().equalsIgnoreCase(">")) {
                     if (cmd.equalsIgnoreCase("ls")){
                         if (Objects.equals(parser.getFirstArgument(), "-r")) {
@@ -51,7 +49,6 @@ public class Main {
                     }
                     output = "";
                 }
-
                 else if(parser.getFirstArgument().equalsIgnoreCase(">>") || parser.getSecondArgument().equalsIgnoreCase(">>")) {
                     if (cmd.equalsIgnoreCase("ls")){
                         if (Objects.equals(parser.getFirstArgument(), "-r")) {
@@ -137,11 +134,11 @@ public class Main {
                 }
 
                 // If this is not the last command, pass output to the next command in the pipe
-                if (i < pipedCommands.length - 1) {
+                if (i < pipedCommands.length - 1)
                     output = CLI.executePipe(output, pipedCommands[i + 1].trim());
-                } else if (!output.isEmpty()) {
+                else if (!output.isEmpty())
                     System.out.println(output);
-                }
+
 
                 if (Objects.equals(command, "exit"))
                     break;

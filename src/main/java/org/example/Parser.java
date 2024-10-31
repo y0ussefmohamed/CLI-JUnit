@@ -11,7 +11,6 @@ public class Parser {
 
 
     public String getCmd() {
-        // arguments[0] = commands[0]
         return cmd;
     }
 
@@ -30,11 +29,9 @@ public class Parser {
     }
 
     public String getThirdArgument() {
-        if (arguments.length < 4){
+        if (arguments.length < 4)
             return "";
-        }
-        else {
+        else
             return arguments[3];
-        }
     }
 }
