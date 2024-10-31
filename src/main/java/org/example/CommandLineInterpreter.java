@@ -380,15 +380,13 @@ public class CommandLineInterpreter {
 
         // Process other commands based on command name
         switch (cmd.toLowerCase()) {
-           /* case "cat":
-                return cat(parser.getFirstArgument());  // Implement `cat` to handle file reading
-            case "ls":
-                return ls();                            // Implement `ls` if you haven't already
-            case "ls -a":
-                return lsAll();                         // Implement `lsAll` for hidden files
-            case "ls -r":
-                return lsReverse();                     // Implement `lsReverse` for reverse order
-            // Add other command cases here as needed*/
+            case "cat":
+                Cat(parser.getFirstArgument(), command1Output); // Call Cat method without returning
+                return ""; // Return empty string since Cat does not return anything
+            case "mkdir":
+                mkdir(parser.getFirstArgument());
+                return "Directory created";
+            // Add other command cases as needed
             default:
                 return "Unknown command for pipe: " + cmd;
         }
