@@ -359,21 +359,35 @@ public class CommandLineInterpreter {
 
 
     // | (pipe)
-    public String executePipe(String command1Output, String command2) {
-        String[] splitCommand = command2.split("\\s+");
+  public String executePipe(String command1Output, String command2) {
+        String[] splitCommand = command2.trim().split("\\s+");
         Parser parser = new Parser(splitCommand);
         String cmd = parser.getCmd();
 
+        // Handle redirection if `>` or `>>` is used
+        if (cmd.equals(">") || cmd.equals(">>")) {
+            String fileName = parser.getFirstArgument();
+            boolean append = cmd.equals(">>");
 
+            // Redirect output to file
+            try (FileWriter writer = new FileWriter(fileName, append)) {
+                writer.write(command1Output);
+                return "";  // No output to pass along the pipe
+            } catch (IOException e) {
+                return "Error writing to file: " + e.getMessage();
+            }
+        }
+
+        // Process other commands based on command name
         switch (cmd.toLowerCase()) {
-          /*  case "cat":
-                return cat(parser.getFirstArgument());
+           /* case "cat":
+                return cat(parser.getFirstArgument());  // Implement `cat` to handle file reading
             case "ls":
-                return ls();
+                return ls();                            // Implement `ls` if you haven't already
             case "ls -a":
-                return lsAll();
+                return lsAll();                         // Implement `lsAll` for hidden files
             case "ls -r":
-                return lsReverse();
+                return lsReverse();                     // Implement `lsReverse` for reverse order
             // Add other command cases here as needed*/
             default:
                 return "Unknown command for pipe: " + cmd;
