@@ -5,11 +5,9 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.Scanner;
 
-
-
 public class Main {
-    public static String currentDirectory = ("/Users/youssefmo/Downloads/CLI-JUnit");
-    public static String homeDirectory = ("/Users/youssefmo/Downloads/CLI-JUnit");
+    public static String currentDirectory = System.getProperty("user.dir");
+    public static String homeDirectory = System.getProperty("user.dir");
     public static String previousDirectory = homeDirectory;
 
     public static void main(String[] args) throws IOException {
@@ -17,8 +15,9 @@ public class Main {
 
         System.out.println();
         System.out.println("Command Line Interpreter is now working: ");
-        while(true) {
-            System.out.print(currentDirectory + " :-$ "); String commandLine = inp.nextLine();
+        while (true) {
+            System.out.print(currentDirectory + " :-$ ");
+            String commandLine = inp.nextLine();
             String[] pipedCommands = commandLine.split("\\|");
             String output = "";
 
@@ -30,75 +29,113 @@ public class Main {
                 Parser parser = new Parser(splittedCommand);
                 String cmd = parser.getCmd();
 
-                switch (cmd.toLowerCase()) {
-                    case "pwd":
-                        output = CLI.pwd();
-                        break;
-                   /* case "ls":
-                        output = CLI.ls();
-                        break;
-                    case "ls -a":
-                        output = CLI.lsAll();
-                        break;
-                    case "ls -r":
-                        output = CLI.lsReverse();
-                        break;*/
-                    case "mkdir":
-                        CLI.mkdir(parser.getFirstArgument());
-                        output = "";
-                        break;
-                    case "cd": {
-                        if(Objects.equals(parser.getFirstArgument(), ""))
-                            CLI.cd("", 1);
-                        else if(Objects.equals(parser.getFirstArgument(), ".."))
-                            CLI.cd("", 2);
-                        else
-                            CLI.cd(parser.getFirstArgument(), 3);
+                if (cmd.equalsIgnoreCase("pwd")) {
+                    output = CLI.pwd();
+                }
 
-                        output = "";
-                        break;
+                else if (cmd.equalsIgnoreCase("cat")){
+                    CLI.Cat(parser.getFirstArgument(), parser.getSecondArgument());
+                    output = "";
+                }
+
+                else if(parser.getFirstArgument().equalsIgnoreCase(">") || parser.getSecondArgument().equalsIgnoreCase(">")) {
+                    if (cmd.equalsIgnoreCase("ls")){
+                        if (Objects.equals(parser.getFirstArgument(), "-r")) {
+                            CLI.redirectOutput(CLI.ls("-r"), parser.getThirdArgument(), false);
+                        } else if (Objects.equals(parser.getFirstArgument(), "-a")) {
+                            CLI.redirectOutput(CLI.ls("-a"), parser.getThirdArgument(), false);;
+                        }
+                        else if (Objects.equals(parser.getFirstArgument(), ">")) {
+                            CLI.redirectOutput(CLI.ls(""), parser.getSecondArgument(), false);
+                        }
                     }
-                    case "rmdir": {
-                        if(Objects.equals(parser.getSecondArgument(), ""))
-                            if(Objects.equals(parser.getFirstArgument(), "*"))
-                                CLI.rmdir(homeDirectory, 1);
-                            else
-                                CLI.rmdir(parser.getFirstArgument(), 2);
+                    output = "";
+                }
+
+                else if(parser.getFirstArgument().equalsIgnoreCase(">>") || parser.getSecondArgument().equalsIgnoreCase(">>")) {
+                    if (cmd.equalsIgnoreCase("ls")){
+                        if (Objects.equals(parser.getFirstArgument(), "-r")) {
+                            CLI.redirectOutput(CLI.ls("-r"), parser.getThirdArgument(), true);
+                        } else if (Objects.equals(parser.getFirstArgument(), "-a")) {
+                            CLI.redirectOutput(CLI.ls("-a"), parser.getThirdArgument(), true);;
+                        }
+                        else if (Objects.equals(parser.getFirstArgument(), ">>")) {
+                            CLI.redirectOutput(CLI.ls(""), parser.getSecondArgument(), true);
+                        }
+                    }
+                    output = "";
+                }
+
+                else if (cmd.equalsIgnoreCase("mkdir")) {
+                    CLI.mkdir(parser.getFirstArgument());
+                    output = "";
+                }
+                else if (cmd.equalsIgnoreCase("cd")) {
+                    if (Objects.equals(parser.getFirstArgument(), ""))
+                        CLI.cd("", 1);
+                    else if (Objects.equals(parser.getFirstArgument(), ".."))
+                        CLI.cd("", 2);
+                    else
+                        CLI.cd(parser.getFirstArgument(), 3);
+                    output = "";
+                }
+                else if (cmd.equalsIgnoreCase("rmdir")) {
+                    if (Objects.equals(parser.getSecondArgument(), "")) {
+                        if (Objects.equals(parser.getFirstArgument(), "*"))
+                            CLI.rmdir(homeDirectory, 1);
                         else
-                            System.out.println("mkdir doesn't take a second argument !");
-                        break;
+                            CLI.rmdir(parser.getFirstArgument(), 2);
+                    } else {
+                        System.out.println("mkdir doesn't take a second argument!");
                     }
-                    case "mv": {
-                        CLI.mv(parser.getFirstArgument(), parser.getSecondArgument());
-                        break;
+                }
+                else if (cmd.equalsIgnoreCase("mv")) {
+                    CLI.mv(parser.getFirstArgument(), parser.getSecondArgument());
+                }
+                else if (cmd.equalsIgnoreCase("rm")) {
+                    if (Objects.equals(parser.getSecondArgument(), ""))
+                        CLI.rm(parser.getFirstArgument());
+                    else
+                        System.out.println("cd doesn't take a second argument!");
+                }
+
+                else if (cmd.equalsIgnoreCase("help")) {
+                    CLI.help();
+                }
+
+                else if (cmd.equalsIgnoreCase("ls")){
+                    if (Objects.equals(parser.getSecondArgument(), "")) {
+                        if (Objects.equals(parser.getFirstArgument(), "-r")) {
+                            System.out.println(CLI.ls("-r"));
+                        } else if (Objects.equals(parser.getFirstArgument(), "-a")) {
+                            System.out.println(CLI.ls("-a"));
+                        }
+                        else if (Objects.equals(parser.getFirstArgument(), "")) {
+                            System.out.println(CLI.ls(""));
+                        }
                     }
-                    case "rm": {
-                        if (Objects.equals(parser.getSecondArgument(), ""))
-                            CLI.rm(parser.getFirstArgument());
-                        else
-                            System.out.println("cd doesn't take a second argument !");
-                        break;
+                    else {
+                        System.out.println("ls doesn't take any arguments !");
                     }
-                   /* case "cat":
-                        output = CLI.cat(parser.getFirstArgument());
-                        break;
-                    case "touch":
+                    output = "";
+                }
+
+
+                else if (cmd.equalsIgnoreCase("touch")){
+                    if (Objects.equals(parser.getSecondArgument(), "")) {
                         CLI.touch(parser.getFirstArgument());
-                        output = "";
-                        break;*/
-                    case ">":
-                        CLI.redirectOutput(output, parser.getFirstArgument(), false);
-                        output = "";
-                        break;
-                    case "help": {
-                        CLI.help();
-                        break;
                     }
-                    case "exit": {
-                        return;
+                    else {
+                        System.out.println("touch doesn't take a second argument !");
                     }
-                    default:
-                        System.out.println("Unknown command: " + cmd);
+                    output = "";
+                }
+
+                else if (cmd.equalsIgnoreCase("exit")) {
+                    return;
+                }
+                else {
+                    System.out.println("Unknown command: " + cmd);
                 }
 
                 // If this is not the last command, pass output to the next command in the pipe
@@ -108,9 +145,7 @@ public class Main {
                     System.out.println(output);
                 }
 
-
-
-                if(Objects.equals(command, "exit"))
+                if (Objects.equals(command, "exit"))
                     break;
             }
         }

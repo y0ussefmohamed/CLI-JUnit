@@ -2,9 +2,9 @@ package org.example;
 
 import org.example.Parser;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.util.Arrays;
+import java.util.Scanner;
 
 public class CommandLineInterpreter {
 
@@ -66,10 +66,91 @@ public class CommandLineInterpreter {
     }
 
     // ls
+    public String ls(String s){
+        String a = "";
+        if (s == "") {
+            File file = new File(System.getProperty("user.dir"));
+            if (!file.exists()) {
+                System.out.println("Directory does not exist!");
+            } else {
+                File[] files = file.listFiles();
+                if (files != null) { // Check to avoid potential null pointer exception
+                    Arrays.sort(files, (f1, f2) -> f1.getName().compareToIgnoreCase(f2.getName()));
+                }
+
+                for (File f : files) {
+                    if (f.isDirectory() && !f.isHidden()) {
+                        //System.out.println("directory: " + f.getName());
+                        a+=("directory: " + f.getName());
+                        a+="\n";
+                    } else if (f.isFile() && !f.isHidden()) {
+                        //System.out.println("     file: " + f.getName());
+                        a+=("     file: " + f.getName());
+                        a+="\n";
+                    }
+                }
+
+            }
+        } else if (s == "-r") {
+            return ls_r();
+        } else if (s == "-a") {
+            return ls_a();
+        }
+        return a;
+    }
 
     // ls -a
+    public String ls_a(){
+        File file = new File(System.getProperty("user.dir"));
+        String a = "";
+        if (!file.exists()) {
+            System.out.println("Directory does not exist!");
+        } else {
+            File[] files = file.listFiles();
+            if (files != null) { // Check to avoid potential null pointer exception
+                Arrays.sort(files, (f1, f2) -> f1.getName().compareToIgnoreCase(f2.getName()));
+            }
 
+            for (File f : files) {
+                if (f.isDirectory()) {
+                    a+=("directory: " + f.getName());
+                    a+="\n";
+//                    System.out.println("directory: " + f.getName());
+                } else if (f.isFile()) {
+                    a+=("     file: " + f.getName());
+                    a+="\n";
+//                    System.out.println("     file: " + f.getName());
+                }
+            }
+        }
+        return a;
+    }
     // ls -r
+    public String ls_r(){
+        String a = "";
+        File file = new File(System.getProperty("user.dir"));
+        if (!file.exists()){
+            System.out.println("Directory does not exist!");
+        }
+        else {
+            File[] files = file.listFiles();
+            if (files != null) { // Check to avoid potential null pointer exception
+                Arrays.sort(files, (f1, f2) -> f1.getName().compareToIgnoreCase(f2.getName()));
+            }
+            for (int i = files.length - 1; i >= 0; i--) {
+                if (files[i].isDirectory() && !files[i].isHidden()) {
+                    a+=("directory: " + files[i].getName());
+                    a+="\n";
+//                    System.out.println("directory: " + files[i].getName());
+                } else if (files[i].isFile() && !files[i].isHidden()) {
+                    a+=("     file: " + files[i].getName());
+                    a+="\n";
+//                    System.out.println("     file: "+ files[i].getName());
+                }
+            }
+        }
+        return a;
+    }
 
     // mkdir
     public void mkdir(String newDirectoryName) {
@@ -126,6 +207,25 @@ public class CommandLineInterpreter {
 
 
     // touch
+    public void touch(String name){
+        File file = new File(name);
+        if (!file.exists()) {
+            try{
+                if (file.createNewFile()){
+                    System.out.println("Created a new file: " + file.getName());
+                }
+                else {
+                    System.out.println("Failed to create the file.");
+                }
+            }
+            catch (IOException e){
+                System.out.println("An error occurred: " + e.getMessage());
+            }
+        }
+        else {
+            System.out.println("File already exists!");
+        }
+    }
 
     // mv
     public void mv(String sourcePath, String destinationPath) {
@@ -186,6 +286,62 @@ public class CommandLineInterpreter {
     }
 
     // cat
+    public void Cat(String arg1, String fileName){
+        Scanner inp = new Scanner(System.in);
+        String inputString = "";
+        BufferedReader br;
+        if (arg1.equalsIgnoreCase(">")){
+            try {
+                File myObj = new File(fileName);
+                if (myObj.createNewFile()){
+                    System.out.println("Created a new file: " + myObj.getName());
+                }
+                else {
+                    System.out.println("file already exists!");
+                }
+                FileOutputStream fos = new FileOutputStream(myObj);
+                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
+                System.out.println("write what you want in this file then @z to close the file");
+                while (!inputString.equalsIgnoreCase("@z")){
+                    inputString = inp.nextLine();
+                    if (!inputString.equalsIgnoreCase("@z")){
+                        bw.write(inputString);
+                        bw.newLine();
+                    }
+                }
+                bw.close();
+            } catch (IOException e) {
+                System.out.println("An error occurred: " + e.getMessage());
+            }
+        } else if (arg1.equalsIgnoreCase(">>")) {
+            try {
+                PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(fileName, true)));
+                System.out.println("write what you want in this file then @z to close the file");
+                while (!inputString.equalsIgnoreCase("@z")){
+                    inputString = inp.nextLine();
+                    if (!inputString.equalsIgnoreCase("@z")){
+                        out.print(inputString);
+                    }
+                }
+                out.close();
+            }
+            catch (IOException e){
+                System.out.println("An error occurred: " + e.getMessage());
+            }
+        }
+        else {
+            try {
+                br = new BufferedReader(new FileReader(arg1));
+                String line;
+                while ((line = br.readLine()) != null) {
+                    System.out.println(line);
+                }
+            }
+            catch (Exception e){
+                System.out.println("An error occurred: " + e.getMessage());
+            }
+        }
+    }
 
     // >
     public void redirectOutput(String commandOutput, String fileName, boolean append) {
@@ -201,7 +357,6 @@ public class CommandLineInterpreter {
         }
     }
 
-    // >>
 
 
     // | (pipe)

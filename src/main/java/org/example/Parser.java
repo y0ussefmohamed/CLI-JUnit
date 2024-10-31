@@ -28,4 +28,13 @@ public class Parser {
         else
             return arguments[2];
     }
+
+    public String getThirdArgument() {
+        if (arguments.length < 4){
+            return "";
+        }
+        else {
+            return arguments[3];
+        }
+    }
 }
