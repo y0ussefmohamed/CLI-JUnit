@@ -15,7 +15,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.ByteArrayInputStream;
-
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -501,6 +502,66 @@ public class CommandLineInterpreterTester {
         // Verify that an error message was printed to System.err
         assertTrue(outContent.toString().contains("An error occurred:"),
                 "Expected an error message when trying to create a file with an invalid name");
+    }
+    @Test
+    public void testPwdPipeMkdir() {
+        // Test chaining `pwd | mkdir newDir` (pipe output of `pwd` to `mkdir`)
+        String pwdOutput = cli.pwd();
+        String result = cli.executePipe(pwdOutput, "mkdir pipedDir");
+
+        // Assert that `mkdir` creates a new directory successfully
+        File newDir = new File(pwdOutput + "/pipedDir");
+        assertTrue(newDir.exists() && newDir.isDirectory(), "Directory should be created successfully.");
+
+        // Clean up
+        newDir.delete();
+    }
+
+    @Test
+    public void testPwdPipeCd() {
+        // Test chaining `pwd | cd` (output of `pwd` piped into `cd`)
+        String pwdOutput = cli.pwd();
+        String result = cli.executePipe(pwdOutput, "cd");
+
+        // Check that the directory has been changed to pwdOutput
+        assertEquals(pwdOutput, cli.pwd(), "Current directory should match the output of `pwd`.");
+    }
+
+    @Test
+    public void testMkdirPipeCd() {
+        // Test chaining `mkdir newDir | cd newDir`
+        cli.mkdir("testPipeDir");
+        String result = cli.executePipe("testPipeDir", "cd");
+
+        // Verify the current directory is `testPipeDir`
+        File newDir = new File(Main.currentDirectory);
+        assertTrue(newDir.getName().equals("testPipeDir"), "Current directory should be 'testPipeDir'.");
+
+        // Clean up
+        cli.cd(Main.homeDirectory, 1);
+        newDir.delete();
+    }
+
+    @Test
+    public void testPwdPipeRedirectOutput() {
+        // Test chaining `pwd | > output.txt`
+        String pwdOutput = cli.pwd();
+        cli.executePipe(pwdOutput, "> output.txt");
+
+        // Verify the content of output.txt matches pwdOutput
+        File outputFile = new File(Main.currentDirectory + "/output.txt");
+        assertTrue(outputFile.exists(), "Output file should be created.");
+
+        // Read the file and verify its contents
+        try {
+            String fileContent = Files.readString(Paths.get(outputFile.getPath()));
+            assertEquals(pwdOutput, fileContent.trim(), "File content should match the `pwd` output.");
+        } catch (IOException e) {
+            fail("An IOException occurred while reading the output file: " + e.getMessage());
+        }
+
+        // Clean up
+        outputFile.delete();
     }
 
 
