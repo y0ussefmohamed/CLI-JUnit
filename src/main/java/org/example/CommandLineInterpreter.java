@@ -1,9 +1,8 @@
 package org.example;
 
-import org.example.Parser;
-
 import java.io.*;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class CommandLineInterpreter {
@@ -47,29 +46,38 @@ public class CommandLineInterpreter {
         {
             Main.previousDirectory = Main.currentDirectory;
             Main.currentDirectory = Main.homeDirectory;
-        } else if (type == 2) // "cd .." - Go to previous directory
+        }
+        else if (type == 2) // "cd .." - Go to previous directory
         {
-            String tempDirectory = Main.previousDirectory;
-            Main.previousDirectory = Main.currentDirectory;
-            Main.currentDirectory = tempDirectory;
-        } else if (type == 3) // Change to a specific path
+            File prevDir = new File(Main.previousDirectory);
+            if (prevDir.exists() && prevDir.isDirectory()) {
+                String tempDirectory = Main.previousDirectory;
+                Main.previousDirectory = Main.currentDirectory;
+                Main.currentDirectory = tempDirectory;
+            }
+            else
+                System.out.println("Previous directory does not exist! ...Staying in the current directory.");
+        }
+        else if (type == 3) // Change to a specific path
         {
             File newDir = new File(path);
             if (newDir.exists() && newDir.isDirectory()) {
                 Main.previousDirectory = Main.currentDirectory;
                 Main.currentDirectory = newDir.getAbsolutePath();
-            }
-            else
+            } else {
                 System.out.println("Invalid path: " + path + " Directory does not exist!");
-        } else
+            }
+        }
+        else {
             System.out.println("Invalid cd command usage!");
-
+        }
     }
+
 
     // ls
     public String ls(String s){
-        String a = "";
-        if (s == "") {
+        StringBuilder a = new StringBuilder();
+        if (Objects.equals(s, "")) {
             File file = new File(System.getProperty("user.dir"));
             if (!file.exists()) {
                 System.out.println("Directory does not exist!");
@@ -79,31 +87,33 @@ public class CommandLineInterpreter {
                     Arrays.sort(files, (f1, f2) -> f1.getName().compareToIgnoreCase(f2.getName()));
                 }
 
-                for (File f : files) {
-                    if (f.isDirectory() && !f.isHidden()) {
-                        //System.out.println("directory: " + f.getName());
-                        a+=("directory: " + f.getName());
-                        a+="\n";
-                    } else if (f.isFile() && !f.isHidden()) {
-                        //System.out.println("     file: " + f.getName());
-                        a+=("     file: " + f.getName());
-                        a+="\n";
+                if (files != null) {
+                    for (File f : files) {
+                        if (f.isDirectory() && !f.isHidden()) {
+                            //System.out.println("directory: " + f.getName());
+                            a.append("directory: ").append(f.getName());
+                            a.append("\n");
+                        } else if (f.isFile() && !f.isHidden()) {
+                            //System.out.println("     file: " + f.getName());
+                            a.append("     file: ").append(f.getName());
+                            a.append("\n");
+                        }
                     }
                 }
 
             }
-        } else if (s == "-r") {
+        } else if (Objects.equals(s, "-r")) {
             return ls_r();
-        } else if (s == "-a") {
+        } else if (Objects.equals(s, "-a")) {
             return ls_a();
         }
-        return a;
+        return a.toString();
     }
 
     // ls -a
     public String ls_a(){
         File file = new File(System.getProperty("user.dir"));
-        String a = "";
+        StringBuilder a = new StringBuilder();
         if (!file.exists()) {
             System.out.println("Directory does not exist!");
         } else {
@@ -112,23 +122,24 @@ public class CommandLineInterpreter {
                 Arrays.sort(files, (f1, f2) -> f1.getName().compareToIgnoreCase(f2.getName()));
             }
 
+            assert files != null;
             for (File f : files) {
                 if (f.isDirectory()) {
-                    a+=("directory: " + f.getName());
-                    a+="\n";
+                    a.append("directory: ").append(f.getName());
+                    a.append("\n");
 //                    System.out.println("directory: " + f.getName());
                 } else if (f.isFile()) {
-                    a+=("     file: " + f.getName());
-                    a+="\n";
+                    a.append("     file: ").append(f.getName());
+                    a.append("\n");
 //                    System.out.println("     file: " + f.getName());
                 }
             }
         }
-        return a;
+        return a.toString();
     }
     // ls -r
     public String ls_r(){
-        String a = "";
+        StringBuilder a = new StringBuilder();
         File file = new File(System.getProperty("user.dir"));
         if (!file.exists()){
             System.out.println("Directory does not exist!");
@@ -138,19 +149,20 @@ public class CommandLineInterpreter {
             if (files != null) { // Check to avoid potential null pointer exception
                 Arrays.sort(files, (f1, f2) -> f1.getName().compareToIgnoreCase(f2.getName()));
             }
+            assert files != null;
             for (int i = files.length - 1; i >= 0; i--) {
                 if (files[i].isDirectory() && !files[i].isHidden()) {
-                    a+=("directory: " + files[i].getName());
-                    a+="\n";
+                    a.append("directory: ").append(files[i].getName());
+                    a.append("\n");
 //                    System.out.println("directory: " + files[i].getName());
                 } else if (files[i].isFile() && !files[i].isHidden()) {
-                    a+=("     file: " + files[i].getName());
-                    a+="\n";
+                    a.append("     file: ").append(files[i].getName());
+                    a.append("\n");
 //                    System.out.println("     file: "+ files[i].getName());
                 }
             }
         }
-        return a;
+        return a.toString();
     }
 
     // mkdir
@@ -379,16 +391,6 @@ public class CommandLineInterpreter {
         }
 
         // Process other commands based on command name
-        switch (cmd.toLowerCase()) {
-            case "cat":
-                Cat(parser.getFirstArgument(), command1Output); // Call Cat method without returning
-                return ""; // Return empty string since Cat does not return anything
-            case "mkdir":
-                mkdir(parser.getFirstArgument());
-                return "Directory created";
-            // Add other command cases as needed
-            default:
-                return "Unknown command for pipe: " + cmd;
-        }
+      return "";
     }
 }

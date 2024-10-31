@@ -1,7 +1,6 @@
 package org.example;
 
-import java.io.FileWriter;
-import java.io.IOException;
+
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -10,7 +9,7 @@ public class Main {
     public static String homeDirectory = System.getProperty("user.dir");
     public static String previousDirectory = homeDirectory;
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         Scanner inp = new Scanner(System.in);
 
         System.out.println();
@@ -38,14 +37,13 @@ public class Main {
                 }
                 else if(parser.getFirstArgument().equalsIgnoreCase(">") || parser.getSecondArgument().equalsIgnoreCase(">")) {
                     if (cmd.equalsIgnoreCase("ls")){
-                        if (Objects.equals(parser.getFirstArgument(), "-r")) {
+                        if (Objects.equals(parser.getFirstArgument(), "-r"))
                             CLI.redirectOutput(CLI.ls("-r"), parser.getThirdArgument(), false);
-                        } else if (Objects.equals(parser.getFirstArgument(), "-a")) {
-                            CLI.redirectOutput(CLI.ls("-a"), parser.getThirdArgument(), false);;
-                        }
-                        else if (Objects.equals(parser.getFirstArgument(), ">")) {
+                        else if (Objects.equals(parser.getFirstArgument(), "-a"))
+                            CLI.redirectOutput(CLI.ls("-a"), parser.getThirdArgument(), false);
+
+                        else if (Objects.equals(parser.getFirstArgument(), ">"))
                             CLI.redirectOutput(CLI.ls(""), parser.getSecondArgument(), false);
-                        }
                     }
                     output = "";
                 }
@@ -54,7 +52,7 @@ public class Main {
                         if (Objects.equals(parser.getFirstArgument(), "-r")) {
                             CLI.redirectOutput(CLI.ls("-r"), parser.getThirdArgument(), true);
                         } else if (Objects.equals(parser.getFirstArgument(), "-a")) {
-                            CLI.redirectOutput(CLI.ls("-a"), parser.getThirdArgument(), true);;
+                            CLI.redirectOutput(CLI.ls("-a"), parser.getThirdArgument(), true);
                         }
                         else if (Objects.equals(parser.getFirstArgument(), ">>")) {
                             CLI.redirectOutput(CLI.ls(""), parser.getSecondArgument(), true);
@@ -99,7 +97,6 @@ public class Main {
                 else if (cmd.equalsIgnoreCase("help")) {
                     CLI.help();
                 }
-
                 else if (cmd.equalsIgnoreCase("ls")){
                     if (Objects.equals(parser.getSecondArgument(), "")) {
                         if (Objects.equals(parser.getFirstArgument(), "-r"))
@@ -114,8 +111,6 @@ public class Main {
 
                     output = "";
                 }
-
-
                 else if (cmd.equalsIgnoreCase("touch")){
                     if (Objects.equals(parser.getSecondArgument(), "")) {
                         CLI.touch(parser.getFirstArgument());
@@ -125,15 +120,12 @@ public class Main {
                     }
                     output = "";
                 }
-
-                else if (cmd.equalsIgnoreCase("exit")) {
+                else if (cmd.equalsIgnoreCase("exit"))
                     return;
-                }
-                else {
-                    System.out.println("Unknown command: " + cmd);
-                }
+                else
+                    System.out.println("Unknown command: " + command);
 
-                // If this is not the last command, pass output to the next command in the pipe
+
                 if (i < pipedCommands.length - 1)
                     output = CLI.executePipe(output, pipedCommands[i + 1].trim());
                 else if (!output.isEmpty())

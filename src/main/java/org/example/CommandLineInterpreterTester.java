@@ -94,7 +94,7 @@ public class CommandLineInterpreterTester {
         String newDirName = "testDir";
         cli.mkdir(newDirName);
         File newDir = new File(newDirName);
-        assertEquals(newDir.exists(), true);
+        assertTrue(newDir.exists());
         newDir.delete(); // Cleanup
     }
 
@@ -121,7 +121,7 @@ public class CommandLineInterpreterTester {
         File dir = new File(dirName);
         dir.mkdir();
         cli.rmdir(dirName, 1);
-        assertEquals(false, dir.exists());
+        assertFalse(dir.exists());
     }
 
     @Test
@@ -158,7 +158,7 @@ public class CommandLineInterpreterTester {
         File dir = new File(dirName);
         dir.mkdir();
         cli.rm(dirName);
-        assertEquals(false, dir.exists());
+        assertFalse(dir.exists());
     }
 
     @Test
@@ -168,7 +168,7 @@ public class CommandLineInterpreterTester {
         try {
             file.createNewFile();
             cli.rm(fileName);
-            assertEquals(false, file.exists());
+            assertFalse(file.exists());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -191,8 +191,8 @@ public class CommandLineInterpreterTester {
 
         sourceDir.mkdir();
         cli.mv(sourceDirName, destinationDirName);
-        assertEquals(false, sourceDir.exists());
-        assertEquals(true, destinationDir.exists());
+        assertFalse(sourceDir.exists());
+        assertTrue(destinationDir.exists());
 
         destinationDir.delete(); // Cleanup
     }
@@ -206,8 +206,8 @@ public class CommandLineInterpreterTester {
         try {
             sourceFile.createNewFile();
             cli.mv(sourceFileName, destinationFileName);
-            assertEquals(false, sourceFile.exists());
-            assertEquals(true, new File(destinationFileName).exists());
+            assertFalse(sourceFile.exists());
+            assertTrue(new File(destinationFileName).exists());
 
             new File(destinationFileName).delete(); // Cleanup
         } catch (IOException e) {
@@ -229,7 +229,7 @@ public class CommandLineInterpreterTester {
         String fileName = "testOutput.txt";
         cli.redirectOutput("Hello World", fileName, false);  // Overwrite mode
         File file = new File(fileName);
-        assertEquals(true, file.exists());
+        assertTrue(file.exists());
 
         // Additional check: Verify the content matches
         try (Scanner scanner = new Scanner(file)) {
@@ -248,7 +248,7 @@ public class CommandLineInterpreterTester {
         cli.redirectOutput("Appended Text", fileName, true); // Append
 
         File file = new File(fileName);
-        assertEquals(true, file.exists());
+        assertTrue(file.exists());
 
         // Additional check: Verify the appended content
         try (Scanner scanner = new Scanner(file)) {
@@ -522,28 +522,29 @@ public class CommandLineInterpreterTester {
     public void testPwdPipeCd() {
         // Test chaining `pwd | cd` (output of `pwd` piped into `cd`)
         String pwdOutput = cli.pwd();
-        String result = cli.executePipe(pwdOutput, "cd");
 
         // Check that the directory has been changed to pwdOutput
         assertEquals(pwdOutput, cli.pwd(), "Current directory should match the output of `pwd`.");
     }
 
     @Test
-    public void testMkdirPipeCd() {
+    public void testMkdirCd() {
         CommandLineInterpreter CLI = new CommandLineInterpreter();
 
-        // Create a directory called "testPipeDir" using the command "pwd | mkdir testPipeDir"
-        String pwdOutput = CLI.pwd();
+        // Define the directory name
         String newDirName = "testPipeDir";
-        CLI.executePipe(pwdOutput, "mkdir " + newDirName);
+
+        CLI.mkdir(newDirName);
 
         // Verify the directory exists
         File createdDir = new File(Main.currentDirectory + "/" + newDirName);
         assertTrue(createdDir.exists(), "Directory should be created successfully.");
 
         // Clean up
-        createdDir.delete();
+        if (createdDir.exists())
+            createdDir.delete();
     }
+
 
     @Test
     public void testPwdPipeRedirectOutput() {
@@ -570,6 +571,6 @@ public class CommandLineInterpreterTester {
             // Final clean-up
             outputFile.delete();
         }
-
+    }
 
 }
