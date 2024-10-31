@@ -384,51 +384,43 @@ public class CommandLineInterpreterTester {
         String initialContent = "Initial line.";
         String appendContent = "Appended line.";
 
-        // Write initial content to file
+
         try (FileWriter writer = new FileWriter(fileName)) {
             writer.write(initialContent + "\n");
         }
 
-        // Simulate user input with `@z` to end the input
         System.setIn(new ByteArrayInputStream((appendContent + "\n@z\n").getBytes()));
 
         cli.Cat(">>", fileName);
 
-        // Verify file contains both initial and appended content
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
             assertEquals(initialContent, reader.readLine(), "Initial content should match");
             assertEquals(appendContent, reader.readLine(), "Appended content should match");
         }
 
-        new File(fileName).delete(); // Cleanup
+        new File(fileName).delete();
     }
 
-    // Test for reading content from a file
+
     @Test
     public void testCatReadFile() throws IOException {
         String fileName = "testReadFile.txt";
         String content = "This is a line in the file.";
 
-        // Write content to file for reading test
         try (FileWriter writer = new FileWriter(fileName)) {
             writer.write(content);
         }
 
-        // Clear any previous content in the output stream
         outContent.reset();
 
-        // Invoke the method to read the file
-        cli.Cat(fileName, ""); // Assuming the second parameter is unused for reading
+        cli.Cat(fileName, "");
 
-        // Verify that the output matches the file content
         assertTrue(outContent.toString().trim().contains(content), "Output should match file content");
 
-        // Cleanup: delete the file
         new File(fileName).delete();
     }
 
 
-    // Test for handling a non-existent file for reading
     @Test
     public void testCatReadNonExistentFile() {
         String fileName = "nonExistentFile.txt";

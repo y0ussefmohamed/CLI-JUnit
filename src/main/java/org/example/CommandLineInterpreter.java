@@ -33,6 +33,7 @@ public class CommandLineInterpreter {
         System.out.println("| <cmd>      - Pipes the output of one command as input to another command.");
         System.out.println("help         - Displays this help message.");
         System.out.println("exit         - Exits the terminal.");
+        System.out.println();
     }
 
     // pwd
@@ -347,16 +348,14 @@ public class CommandLineInterpreter {
     public void redirectOutput(String commandOutput, String fileName, boolean append) {
         try (FileWriter fileWriter = new FileWriter(fileName, append)) {
             fileWriter.write(commandOutput + "\n");
-            if (append) {
+            if (append)
                 System.out.println("Appended to " + fileName + " successfully √");
-            } else {
+            else
                 System.out.println("Written in " + fileName + " successfully got replaced √");
-            }
         } catch (IOException e) {
             System.out.println("Error writing to file: " + e.getMessage());
         }
     }
-
 
 
     // | (pipe)
@@ -365,7 +364,7 @@ public class CommandLineInterpreter {
         Parser parser = new Parser(splitCommand);
         String cmd = parser.getCmd();
 
-        // Process command2 using command1's output as input if needed
+
         switch (cmd.toLowerCase()) {
           /*  case "cat":
                 return cat(parser.getFirstArgument());

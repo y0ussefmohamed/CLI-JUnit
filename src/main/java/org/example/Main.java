@@ -105,18 +105,16 @@ public class Main {
 
                 else if (cmd.equalsIgnoreCase("ls")){
                     if (Objects.equals(parser.getSecondArgument(), "")) {
-                        if (Objects.equals(parser.getFirstArgument(), "-r")) {
+                        if (Objects.equals(parser.getFirstArgument(), "-r"))
                             System.out.println(CLI.ls("-r"));
-                        } else if (Objects.equals(parser.getFirstArgument(), "-a")) {
+                        else if (Objects.equals(parser.getFirstArgument(), "-a"))
                             System.out.println(CLI.ls("-a"));
-                        }
-                        else if (Objects.equals(parser.getFirstArgument(), "")) {
+                        else if (Objects.equals(parser.getFirstArgument(), ""))
                             System.out.println(CLI.ls(""));
-                        }
                     }
-                    else {
+                    else
                         System.out.println("ls doesn't take any arguments !");
-                    }
+
                     output = "";
                 }
 
