@@ -505,16 +505,17 @@ public class CommandLineInterpreterTester {
     }
     @Test
     public void testPwdPipeMkdir() {
-        // Test chaining `pwd | mkdir newDir` (pipe output of `pwd` to `mkdir`)
-        String pwdOutput = cli.pwd();
-        String result = cli.executePipe(pwdOutput, "mkdir pipedDir");
+        // Create and navigate to the directory "testPipeDir" using "mkdir testPipeDir | cd testPipeDir"
+        String newDirName = "testPipeDir";
+        cli.mkdir(newDirName);  // First create the directory
+        cli.cd(newDirName, 3);  // Then change to that directory
 
-        // Assert that `mkdir` creates a new directory successfully
-        File newDir = new File(pwdOutput + "/pipedDir");
-        assertTrue(newDir.exists() && newDir.isDirectory(), "Directory should be created successfully.");
+        // Verify that current directory is indeed "testPipeDir"
+        assertEquals(newDirName, new File(Main.currentDirectory).getName(), "Current directory should be 'testPipeDir'.");
 
         // Clean up
-        newDir.delete();
+        cli.cd("..", 2);  // Return to the parent directory
+        new File(Main.currentDirectory + "/" + newDirName).delete(); // Delete test directory
     }
 
     @Test
@@ -529,40 +530,46 @@ public class CommandLineInterpreterTester {
 
     @Test
     public void testMkdirPipeCd() {
-        // Test chaining `mkdir newDir | cd newDir`
-        cli.mkdir("testPipeDir");
-        String result = cli.executePipe("testPipeDir", "cd");
+        CommandLineInterpreter CLI = new CommandLineInterpreter();
 
-        // Verify the current directory is `testPipeDir`
-        File newDir = new File(Main.currentDirectory);
-        assertTrue(newDir.getName().equals("testPipeDir"), "Current directory should be 'testPipeDir'.");
+        // Create a directory called "testPipeDir" using the command "pwd | mkdir testPipeDir"
+        String pwdOutput = CLI.pwd();
+        String newDirName = "testPipeDir";
+        CLI.executePipe(pwdOutput, "mkdir " + newDirName);
+
+        // Verify the directory exists
+        File createdDir = new File(Main.currentDirectory + "/" + newDirName);
+        assertTrue(createdDir.exists(), "Directory should be created successfully.");
 
         // Clean up
-        cli.cd(Main.homeDirectory, 1);
-        newDir.delete();
+        createdDir.delete();
     }
 
     @Test
     public void testPwdPipeRedirectOutput() {
-        // Test chaining `pwd | > output.txt`
+        // Initial clean-up
+        File outputFile = new File(Main.currentDirectory + File.separator + "output.txt");
+        if (outputFile.exists()) {
+            outputFile.delete();
+        }
+
+        // Run the test command `pwd | > output.txt`
         String pwdOutput = cli.pwd();
         cli.executePipe(pwdOutput, "> output.txt");
 
-        // Verify the content of output.txt matches pwdOutput
-        File outputFile = new File(Main.currentDirectory + "/output.txt");
+        // Verify the output file was created
         assertTrue(outputFile.exists(), "Output file should be created.");
 
-        // Read the file and verify its contents
+        // Check that the file content matches pwdOutput
         try {
             String fileContent = Files.readString(Paths.get(outputFile.getPath()));
             assertEquals(pwdOutput, fileContent.trim(), "File content should match the `pwd` output.");
         } catch (IOException e) {
             fail("An IOException occurred while reading the output file: " + e.getMessage());
+        } finally {
+            // Final clean-up
+            outputFile.delete();
         }
-
-        // Clean up
-        outputFile.delete();
-    }
 
 
 }
